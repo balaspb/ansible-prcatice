@@ -1,0 +1,46 @@
+---
+- name: website setup on servers
+  hosts: websrvgp
+  become: yes
+  vars:
+   WEBURL: https://www.free-css.com/assets/files/free-css-templates/download/page242/business-perfect.zip 
+   WEBDIR: html-freebie-business-perfect-master
+  tasks:
+    - name: install pkgs on centos
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+       - httpd
+       - wget      
+       - unzip
+       - git
+
+    - name: start and enable httpd
+      service:
+        name: httpd
+        state: started
+        enabled: yes    
+
+    - name: download the website
+      get_url:
+        url: "{{WEBURL}}"
+        dest: /tmp/business-perfect.zip
+
+    - name: unzip 
+      unarchive:
+        src: "/tmp/business-perfect.zip"
+        dest: /tmp/
+        remote_src: yes
+      register: unzip_track
+
+    - name: copy files from template to /var/www/html
+      shell: "cp -r /tmp/{{WEBDIR}}/* /var/www/html"
+      when: unzip_track.changed
+      notify:
+        - restart httpd service
+  handlers:     
+    - name: restart httpd service
+      service:
+        name: httpd
+        state: restarted 

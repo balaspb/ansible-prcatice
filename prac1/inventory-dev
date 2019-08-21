@@ -1,0 +1,22 @@
+web01   
+web02  
+db01   
+
+[websrvgp]
+web01
+web02
+
+[dbsrvgp]
+db01
+
+
+[mydc:children]
+websrvgp
+dbsrvgp
+
+[mydc:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_user=devops
+
+[websrvgp:vars]
+ ansible_python_interpreter=/usr/bin/python

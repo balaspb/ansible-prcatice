@@ -1,0 +1,10 @@
+- name: learning ansible setup module
+  hosts: all
+  become: yes
+  tasks:
+          #   - debug:
+          # msg: Os family for "{{ansible_fqdn}}  is {{ansible_os_family}}"
+    - debug:
+          msg: remote machine date is "{{ansible_date_time}}  
+    - debug:
+          msg: remote machine date ind weeknumber is "{{ansible_date_time.weeknumber}}  

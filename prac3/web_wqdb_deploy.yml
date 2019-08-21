@@ -1,0 +1,53 @@
+---
+- name: website setup on servers
+  hosts: websrvgp
+  become: yes
+  remote_user: devops
+  tasks:
+   - name: install httpd on centos
+     yum:
+      name: httpd
+      state: present
+
+   - name: start and enable httpd
+     service:
+      name: httpd
+      state: started
+      enabled: yes    
+   - name: push website on remote servers
+     copy:
+      src: /root/ansible/prac3/profile
+      dest: /var/www/html
+      owner: devops
+      group: devops
+      mode: 0644
+
+
+- name: db setup
+  hosts: dbsrvgp
+  become: yes
+  remote_user: devops
+  tasks:
+    - name: mysql insatll on ubuntu
+      apt:
+       name: mysql-server
+       state: present
+    - name: mysql -python install on db machine
+      apt:
+       name: python3-mysqldb
+       state: present
+    - name: mysql start 
+      service:
+       name: mysql
+       state: started
+       enabled: yes
+    - name: Create a new database with name 'accounts'
+      mysql_db:
+       name: accounts
+       state: present
+    - name: Create database user with name 'bob' and password '12345' with all database privileges
+      mysql_user:
+       name: bob
+       password: 12345
+       priv: '*.*:ALL'
+       state: present

@@ -1,0 +1,28 @@
+---
+- name: website setup on servers
+  hosts: websrvgp
+  become: yes
+  ignore_errors: True
+  tasks:
+    
+    - name: install ntp on websrv
+      yum:
+        name: ntp
+        state: present
+    - name: start and enabel stp service
+      service:
+        name: ntpd
+        state: started
+        enabled: yes
+    - name: deploy ntp config file
+      template: 
+        src: templates/ntpconf.j2
+        dest: /etc/ntp.conf
+      notify:
+      - restart ntp service
+  handlers:
+    - name: restart ntp service
+      service:
+        name: ntp      
+        state: restarted
+

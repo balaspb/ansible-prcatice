@@ -1,0 +1,108 @@
+---
+- name: setup post install configuration
+  hosts: all
+  become: yes
+  ignore_errors: True
+  vars:
+    server0: 0.in.pool.ntp.org
+    server1: 1.in.pool.ntp.org
+    server2: 2.in.pool.ntp.org
+    server3: 3.in.pool.ntp.org
+    NTPPATH: /etc/ntp.conf
+  tasks:
+  - name: install sotwares on redhat
+    yum:
+      name: "{{item}}" 
+      state: present
+    when: ansible_os_family == "RedHat"
+    loop:
+     - ntp
+     - wget
+     - git
+     - unzip
+     - zip                
+  - name: install sotwares on ubuntu
+    apt:
+      name: "{{item}}" 
+      state: present
+      update_cache: yes
+    when: ansible_os_family == "Debian"
+    loop:
+     - ntp
+     - wget
+     - git
+     - unzip
+     - zip 
+  - name: start and enabled ntpon redhat
+    service:
+      name: ntpd
+      state: started  
+    when: ansible_os_family == "RedHat"
+
+  - name: start and enabled ntpon ubunut
+    service:
+      name: ntp
+      state: started  
+    when: ansible_os_family == "Debian"
+  - name: deploy ntp conf files on redhat
+    template:
+      src: templates/ntpconf.j2
+      dest: "{{NTPPATH}}"     
+    notify: 
+    - restart ntp on redhat
+    when: ansible_os_family == "RedHat" 
+
+  - name: deploy ntp conf files on ubuntu
+    template:
+      src: templates/ntpcontubunutu.j2
+      dest: "{{NTPPATH}}"     
+    notify: 
+    - restart ntp on ubuntu
+    when: ansible_os_family == "Debian"
+  - name: deploy banner fiel
+    copy:
+      content: "wel come to {{ansible_fqdn}}.\n os {{ansible_os_family}}.\n"
+      dest: /etc/motd  
+  - name: create dataidr
+    file:
+      path: /opt/datadir
+      state: directory
+      mode: 0755
+      owner: devops
+      group: devops
+    
+  - name: copy tarball on remote machine
+    copy:
+      src: files/datafiles.tar.gz
+      dest: /opt/datadir
+      mode: 0755
+      owner: devops
+      group: devops
+  - name: unarchive tar dataidr
+    unarchive:
+      src: /opt/datadir/datafiles.tar.gz
+      dest: /opt/datadir
+      remote_src: yes
+      mode: 0755
+      owner: devops
+      group: devops    
+    register: unarchive_status   
+  - name: remove tar ball
+    file:
+      path: /opt/datadir/datafiles.tar.gz
+      state: absent
+      mode: 0755
+      owner: devops
+      group: devops
+    when: unarchive_status.changed  
+    
+  handlers:
+    - name: restart ntp on redhat
+      service:
+        name: ntpd
+        state: restarted
+    - name: restart ntp on ubuntu
+      service:
+        name: ntp
+        state: restarted
+

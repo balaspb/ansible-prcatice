@@ -1,0 +1,25 @@
+---
+- name: website setup on servers
+  hosts: all
+  become: yes
+  remote_user: devops
+  tasks:
+   - name: install ntp on debian
+     apt:
+      name: "{{ item }}"
+      state: present   
+     when: ansible_os_family == "Debian"
+     loop:
+     - git
+     - wget
+     - unzip  
+
+   - name: install ntp on redhat
+     yum:
+      name: " {{ item }}"
+      state: present   
+     when: ansible_os_family == "RedHat"
+     loop :
+     - git
+     - wget
+     - unzip  

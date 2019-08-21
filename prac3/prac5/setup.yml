@@ -1,0 +1,15 @@
+- name: learning variable for ansible
+  hosts: all
+  become: yes
+  tasks:
+    - debug:
+          msg: this user name "{{USRNM}} and group name is {{USGROUP}}"
+    - name: add user
+      user:
+          name: "{{USRNM}}"
+          shell: /bin/bash
+          state: present
+    - name: creat user group
+      group:
+          name: "{{USGROUP}}"
+          state: present

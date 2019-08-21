@@ -1,0 +1,11 @@
+---
+# handlers file for post-install
+ - name: restart ntp on redhat
+   service:
+     name: ntpd
+     state: restarted
+ - name: restart ntp on ubuntu
+   service:
+     name: ntp
+     state: restarted
+
