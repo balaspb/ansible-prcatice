@@ -1,6 +1,7 @@
+db01 
 web01   
-web02   
-db01   
+web02  
+
 
 [websrvgp]
 web01
@@ -15,8 +16,12 @@ websrvgp
 dbsrvgp
 
 [mydc:vars]
-ansible_python_interpreter=/usr/bin/python3
 ansible_user=devops
 
 [websrvgp:vars]
 ansible_python_interpreter=/usr/bin/python
+[dbsrvgp:vars]
+ansible_python_interpreter=/usr/bin/python3
+
+
+
